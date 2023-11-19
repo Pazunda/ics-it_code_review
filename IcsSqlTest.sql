@@ -47,11 +47,11 @@ values
     - засчитываются решения БЕЗ использования OR, CASE, CTE
 */
 /*
-	Создадим переменную в виде таблицы в которой будут коды сотрудников и даты их отпусков
+    Создадим переменную в виде таблицы в которой будут коды сотрудников и даты их отпусков
     Сразу отфильтруем тех сотрудников чей отпуск начался не позднее 2020-12-31 
     и тех у кого отпуск закончился не ранее 2020-01-01
 */
-DECLARE @EmployeeVacations TABLE (
+declare @EmployeeVacations TABLE (
 	ID int not null
 	,Code varchar(10) not null
 	,ID_Employee int not null
@@ -59,29 +59,29 @@ DECLARE @EmployeeVacations TABLE (
 	,DateEnd date not null
 );
 
-INSERT INTO @EmployeeVacations (ID,Code,ID_employee,DateBegin,DateEnd)
-    SELECT
+insert into @EmployeeVacations (ID,Code,ID_employee,DateBegin,DateEnd)
+	select
 		e.id
 		,e.code
 		,v.ID_Employee
 		,v.DateBegin
 		,v.DateEnd
-	FROM employee AS e
-		JOIN vacation AS v ON v.id_employee = e.id
-	WHERE v.DateBegin <= '2020-12-31' 
-		AND v.DateEnd >= '2020-01-01';
+	from employee as e
+		join vacation as v on v.id_employee = e.id
+	where v.DateBegin <= '2020-12-31' 
+		and v.DateEnd >= '2020-01-01';
           
 -- Сделаем selfjoin для получения всех сочетаний сотрудников
 select
-	l.code AS КодСотрудника1
-	,l.DateBegin AS НачалоОтпуска1
-	,l.DateEnd AS КонецОтпуска1
-	,r.code AS КодСотрудника2
-	,r.DateBegin AS НачалоОтпуска2
-	,r.DateEnd AS КонецОтпуска2
-FROM @EmployeeVacations AS l
+	l.code as КодСотрудника1
+	,l.DateBegin as НачалоОтпуска1
+	,l.DateEnd as КонецОтпуска1
+	,r.code as КодСотрудника2
+	,r.DateBegin as НачалоОтпуска2
+	,r.DateEnd as КонецОтпуска2
+from @EmployeeVacations as l
 	-- уберем дубли и отфильтруем пересекающиеся даты отпусков
-	JOIN @EmployeeVacations AS r ON r.code > l.code                    
-		AND r.DateBegin >= l.DateEnd                                   
-		AND r.DateEnd <= l.DateBegin;
+	join @EmployeeVacations as r on r.code > l.code                    
+		and r.DateBegin >= l.DateEnd                                   
+		and r.DateEnd <= l.DateBegin;
 
